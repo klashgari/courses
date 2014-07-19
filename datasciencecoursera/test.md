@@ -1,6 +1,7 @@
 #Quiz 2
 
-##tData Science Specialization
+
+##sData Science Specialization
 
 * User R
 * Nine courses
