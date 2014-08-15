@@ -1,3 +1,9 @@
+# 
+# usage:   data <- pollutantmean("specdata", "nitrate", 70:72)
+#
+
+Global.BasePath <- "~/edu/courses/data-science"
+
 pollutantmean <- function(directory, pollutant, id = 1:332) {
   ## 'directory' is a character vector of length 1 indicating
   ## the location of the CSV files
@@ -12,26 +18,14 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
   ## Return the mean of the pollutant across all monitors list
   ## in the 'id' vector (ignoring NA values)
   
-  #------------- kourosh -----------------------------------
-  # for each item in the id  
-  #   build a new string for a filename 
-  #   open the file and load to temp
-  #   cbind the temp to data variable.
   
-  # if  pollutant is a "sulfate"  then take mean of the "sulfate"
-  # if  pollutant is a "nitrate" then take mean of the "nitrate"
-  
-  #
-  
-  for( i in id ){
-    filename <- formatC(i, width = 3, format = "d", flag = "0")
-    path <- paste( directory, "/" ,filename, ".csv" , sep="" )
-   # print(path)
-    
+  files <- sprintf("%s/%s/%03d.csv", Global.BasePath, directory, id)
+  for( path in files)
+  {
     d <- read.csv( path , header = TRUE, stringsAsFactors=FALSE) 
-    data <- rbind(data, d)  
+    data <- rbind(data, d) 
   }
-  
+
   if( pollutant == "sulfate"){
       #print("sulfate")  
       m  <- mean(data$sulfate, na.rm = TRUE)
@@ -43,3 +37,4 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
   #trunc(m, digits=6)
   m
 }
+
