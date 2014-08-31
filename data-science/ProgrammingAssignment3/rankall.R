@@ -1,7 +1,3 @@
-#  rankhospital takes three arguments: the 2-character abbreviated name of a
-# state (state), an outcome (outcome), and the ranking of a hospital in that state for that outcome (num).
-# The function reads the outcome-of-care-measures.csv file and returns a character vector with the name
-# of the hospital that has the ranking specied by the num argument. 
 # example: 
 #     rankhospital("MD", "heart failure", 5)
 #     tail(rankall("pneumonia", "worst"), 3)
