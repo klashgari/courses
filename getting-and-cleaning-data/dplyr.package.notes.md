@@ -338,3 +338,253 @@ Source: local data frame [1 x 1]
 ```
 summarize() can give you the requested value FOR EACH group in your dataset.
 
+
+## Grouping data
+
+The main idea behind grouping data is that you want to break up your dataset into groups of rows based on the
+values of one or more variables. The group_by() function is reponsible for doing this.
+
+Group cran by the package variable and store the result in a new variable called by_package.
+```sh
+cran <- tbl_df(mydf)
+
+by_package <- group_by(cran, package)
+
+ by_package
+Source: local data frame [225,468 x 11]
+Groups: package
+
+    X       date     time    size r_version r_arch      r_os      package version country ip_id
+1   1 2014-07-08 00:54:41   80589     3.1.0 x86_64   mingw32    htmltools   0.2.4      US     1
+2   2 2014-07-08 00:59:53  321767     3.1.0 x86_64   mingw32      tseries 0.10-32      US     2
+3   3 2014-07-08 00:47:13  748063     3.1.0 x86_64 linux-gnu        party  1.0-15      US     3
+4   4 2014-07-08 00:48:05  606104     3.1.0 x86_64 linux-gnu        Hmisc  3.14-4      US     3
+5   5 2014-07-08 00:46:50   79825     3.0.2 x86_64 linux-gnu       digest   0.6.4      CA     4
+6   6 2014-07-08 00:48:04   77681     3.1.0 x86_64 linux-gnu randomForest   4.6-7      US     3
+7   7 2014-07-08 00:48:35  393754     3.1.0 x86_64 linux-gnu         plyr   1.8.1      US     3
+8   8 2014-07-08 00:47:30   28216     3.0.2 x86_64 linux-gnu      whisker   0.3-2      US     5
+9   9 2014-07-08 00:54:58    5928        NA     NA        NA         Rcpp  0.10.4      CN     6
+10 10 2014-07-08 00:15:35 2206029     3.0.2 x86_64 linux-gnu     hflights     0.1      US     7
+.. ..        ...      ...     ...       ...    ...       ...          ...     ...     ...   ...
+
+```
+
+At the top of the output above, you'll see 'Groups: package', which tells us that this tbl has been grouped by the package variable. Everything else looks the same, but now any operation we apply to the grouped data will take place on a per package basis.
+
+```sh
+summarize( by_package, mean(size))
+Source: local data frame [6,023 x 2]
+
+       package mean(size)
+1           A3   62194.96
+2  ABCExtremes   22904.33
+3     ABCoptim   17807.25
+4        ABCp2   30473.33
+5       ACCLMA   33375.53
+6          ACD   99055.29
+7         ACNE   96099.75
+8        ACTCD  134746.27
+9    ADGofTest   12262.91
+10        ADM3 1077203.47
+..         ...        ...
+```
+Instead of returning a single value, summarize() now returns the mean size for EACH package in our dataset.
+
+```sh
+
+
+pack_sum <- summarize(by_package,
+                      count = n(),
+                      unique =  n_distinct(ip_id),
+                      countries = n_distinct(country),
+                      avg_bytes =  mean(size))
+ pack_sum
+Source: local data frame [6,023 x 5]
+
+       package count unique countries  avg_bytes
+1           A3    25     24        10   62194.96
+2  ABCExtremes    18     17         9   22904.33
+3     ABCoptim    16     15         9   17807.25
+4        ABCp2    18     17        10   30473.33
+5       ACCLMA    15     14         9   33375.53
+6          ACD    17     16        10   99055.29
+7         ACNE    16     15        10   96099.75
+8        ACTCD    15     14         9  134746.27
+9    ADGofTest    47     44        20   12262.91
+10        ADM3    17     16        10 1077203.47
+..         ...   ...    ...       ...        ...                     
+                      
+```
+The 'count' column, created with n(), contains the total number of rows (i.e. downloads) for each package. The 'unique' column, created with n_distinct(ip_id), gives the total number of unique downloads for each package, as measure by the number of distinct ip_id's. The 'countries' column, created with n_distinct(country), provides the number of countries in which the each package was downloaded. And finally, the 'avg_bytes' column, created with mean(size), contains the mean download size (in bytes) for each package.
+
+we'd like to know which packages were most popular on the day these data were collected (July 8, 2014). Let's start by isolating the top 1% of packages, based on the total number of downloads as measured by the 'count' column.
+
+## quantile
+We need to know the value of 'count' that splits the data into the top 1% and bottom 99% of packages based on total downloads. In statistics, this is called the 0.99, or 99%, sample quantile. Use quantile(pack_sum$count, probs = 0.99) to determine this number.
+
+```sh
+quantile(pack_sum$count, probs = 0.99)
+   99% 
+679.56 
+```
+
+Now we can isolate only those packages which had more than 679 total downloads. Use filter() to select all rows from pack_sum for which 'count' is strictly greater (>) than 679. Store the result in a new variable called top_counts.
+```sh
+top_counts <- filter( pack_sum , count > 679)
+
+top_counts
+Source: local data frame [61 x 5]
+
+        package count unique countries   avg_bytes
+1           DBI  2599    492        48  206933.250
+2       Formula   852    777        65  155742.002
+3         Hmisc   954    812        69 1367675.911
+4          LPCM  2335     17        10  526814.226
+5          MASS   834    698        66  981152.179
+6        Matrix   932    801        66 3220134.165
+7  RColorBrewer  1890   1584        79   22763.995
+8         RCurl  1504   1207        73 1903505.324
+9         RJDBC   809    107        28   18715.441
+10      RJSONIO   751    585        60 1208103.992
+11       RMySQL   862     98        21  212832.918
+12         Rcpp  3195   2044        84 2512100.355
+13      SparseM  1167    454        60  674890.722
+14          VIF   697     37        12 2344226.571
+15          XML  1022    770        62 2927022.407
+16       bitops  1549   1408        76   28715.046
+17      caTools   812    699        64  176589.018
+18          car  1008    837        64 1229122.307
+19   colorspace  1683   1433        80  357411.197
+20   data.table   680    564        59 1252721.215
+21     devtools   769    560        55  212932.640
+22    dichromat  1486   1257        74  134731.938
+23       digest  2210   1894        83  120549.294
+24       doSNOW   740     75        24    8363.755
+25     evaluate  1095    998        73   35139.161
+26      foreach  1984    485        53  358069.782
+27      formatR   815    709        65   43311.099
+28      ggplot2  4602   1680        81 2427716.054
+29       gplots   708    645        65  519971.459
+30       gtable  1466   1255        75   55137.990
+31       gtools   875    793        62  109778.034
+32        highr   807    709        64   27969.524
+33    htmltools   762    656        55   65717.295
+34         httr  1195   1015        68  293879.626
+35    iterators  1887    462        53  294757.526
+36        knitr  1037    885        70  946708.266
+37     labeling  1502   1270        75   34739.487
+38 latticeExtra   887    791        69 1909937.068
+39         lme4   938    756        68 3921084.377
+40     markdown   939    809        66  138671.633
+41         mgcv  1122   1006        72 1674032.285
+42         mime   886    780        65   15268.103
+43      munsell  1514   1276        75  119432.542
+44      mvtnorm   841    729        64  203047.132
+45       nloptr   756    682        63  754357.567
+46         plyr  2908   1754        81  799122.790
+47        proto  1500   1281        76  469796.779
+48     quantreg  1098    388        54 1733616.958
+49        rJava  2773    963        70  633522.348
+50     reshape2  2032   1652        76  330128.263
+51          rgl   786    655        70 2543589.210
+52       scales  1726   1408        77  126819.331
+53        shiny   713    455        50 1212965.833
+54         snow   809    134        30   28989.546
+55      stringr  2267   1948        82   65277.166
+56        swirl   820    698        66   95868.696
+57     testthat   818    755        64  188230.345
+58         xlsx   798    578        59  380129.548
+59       xtable   751    611        54  376072.182
+60         yaml  1062    982        72  161006.309
+61          zoo  1245   1073        63  857691.878
+```
+
+arrange() the rows of top_counts based on the 'count' column. We want the packages with the highest number of downloads at the top, which means we want 'count' to be in descending order.
+
+```sh
+arrange( top_counts, desc(count)
+
+```
+
+Find the 0.99, or 99%, quantile for the 'unique' variable with quantile(pack_sum$unique, probs = 0.99).
+
+```sh
+quantile(pack_sum$unique, probs = 0.99)
+99% 
+465 
+
+```
+Apply filter() to pack_sum to select all rows corresponding to values of 'unique' that are strictly greater than 465. Assign the result to a variable called top_unique.
+```sh
+top_unique <- filter( pack_sum,  unique > 465)
+ top_unique
+Source: local data frame [60 x 5]
+
+        package count unique countries  avg_bytes
+1           DBI  2599    492        48  206933.25
+2       Formula   852    777        65  155742.00
+3         Hmisc   954    812        69 1367675.91
+4          MASS   834    698        66  981152.18
+5        Matrix   932    801        66 3220134.17
+6  RColorBrewer  1890   1584        79   22763.99
+7         RCurl  1504   1207        73 1903505.32
+8       RJSONIO   751    585        60 1208103.99
+9          Rcpp  3195   2044        84 2512100.35
+10    RcppEigen   546    474        52 2032426.11
+11          XML  1022    770        62 2927022.41
+12       bitops  1549   1408        76   28715.05
+13      caTools   812    699        64  176589.02
+14          car  1008    837        64 1229122.31
+15   colorspace  1683   1433        80  357411.20
+16   data.table   680    564        59 1252721.21
+17     devtools   769    560        55  212932.64
+18    dichromat  1486   1257        74  134731.94
+19       digest  2210   1894        83  120549.29
+20        e1071   562    482        61  743153.75
+21     evaluate  1095    998        73   35139.16
+22      foreach  1984    485        53  358069.78
+23      formatR   815    709        65   43311.10
+24        gdata   673    619        57  800502.47
+25      ggplot2  4602   1680        81 2427716.05
+26       gplots   708    645        65  519971.46
+27       gtable  1466   1255        75   55137.99
+28       gtools   875    793        62  109778.03
+29        highr   807    709        64   27969.52
+30    htmltools   762    656        55   65717.30
+31         httr  1195   1015        68  293879.63
+32        knitr  1037    885        70  946708.27
+33     labeling  1502   1270        75   34739.49
+34      lattice   627    523        56  642181.03
+35 latticeExtra   887    791        69 1909937.07
+36         lme4   938    756        68 3921084.38
+37     markdown   939    809        66  138671.63
+38      memoise   678    600        59   14023.51
+39         mgcv  1122   1006        72 1674032.29
+40         mime   886    780        65   15268.10
+41      munsell  1514   1276        75  119432.54
+42      mvtnorm   841    729        64  203047.13
+43       nloptr   756    682        63  754357.57
+44         plyr  2908   1754        81  799122.79
+45        proto  1500   1281        76  469796.78
+46        rJava  2773    963        70  633522.35
+47      reshape   611    522        52  111337.99
+48     reshape2  2032   1652        76  330128.26
+49          rgl   786    655        70 2543589.21
+50     sandwich   597    507        56  491268.38
+51       scales  1726   1408        77  126819.33
+52           sp   559    470        54 1410246.55
+53      stringr  2267   1948        82   65277.17
+54        swirl   820    698        66   95868.70
+55     testthat   818    755        64  188230.34
+56         xlsx   798    578        59  380129.55
+57     xlsxjars   665    527        58 9214537.15
+58       xtable   751    611        54  376072.18
+59         yaml  1062    982        72  161006.31
+60          zoo  1245   1073        63  857691.88
+
+arrange( top_unique, desc(unique)
+
+```
+
+
+
