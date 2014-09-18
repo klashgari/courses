@@ -99,7 +99,7 @@ dataset.with.descriptive.variable.names <- function(subject, activity, x, filena
 
 create.tidy.dataset <- function(cleaned, filename, basepath=Global.BasePath)
 {
-  tidy <- ddply(cleaned, .(subject, activity), colwise(mean) )
+  tidy <- ddply(cleaned, .(subject, activity), numcolwise(mean) )
   
   file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
   write.table(tidy, file, sep="\t" ,row.name=FALSE )
