@@ -102,7 +102,7 @@ create.tidy.dataset <- function(cleaned, filename, basepath=Global.BasePath)
   tidy <- ddply(cleaned, .(subject, activity), numcolwise(mean) )
   
   file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
-  write.table(tidy, file, sep="\t" ,row.name=FALSE )
+  write.table(tidy, file, sep="\t" ,row.names=FALSE )
   tidy
 }
 
