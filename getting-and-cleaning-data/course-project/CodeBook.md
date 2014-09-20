@@ -55,7 +55,7 @@ The tidy data set extracts only the the mean and standard deviation for each mea
 The data set is processed by *run_analysis.R* script.
   
 
-## Data Transformaiton Steps
+## Data Transformation Steps
 
 #### Merges the training and the test sets to create one data set.
 
@@ -64,9 +64,9 @@ In this step we merge the traing and test data sets and clean the column names.
 **Function:** MergeDatasets
 
 **Output of the MergeDatasets function is a list.**
-Subject | Activity | X
-------- | -------- | 
-[10,299 x 1]|[10,299 x 1]|[10,299 x 561]
+Subject | Activity | X |
+------- | -------- | -------- |
+[10,299 x 1]|[10,299 x 1]|[10,299 x 561]|
 
 *Method Signature*
 ```r
