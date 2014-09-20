@@ -22,5 +22,9 @@ Call the Usage() for help.
 > 
 ```
 
+To execute the code run
+```{r}
+> Main()
+```
 
 CodeBook.md describes the variables, the data, and any transformations or work that you performed to clean up the data
