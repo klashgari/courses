@@ -33,6 +33,7 @@ Main <- function(lazyLoad = TRUE)
   #each variable for each activity and each subject.
   WriteTidyDataset(cleaned, "tidy.txt")
   
+  Print("Done")
 }
 
 Usage <- function()
@@ -151,7 +152,8 @@ ReplaceActivityNames <-function(activity)
 
 WriteDatasetWithDescriptiveVariableNames <- function(subject, activity, x, filename, basepath=Global.BasePath)
 {
-  "Creates a second, independent tidy data set with the average of each variable for each activity and each subject."
+  "Appropriately labels the data set with descriptive variable names. "
+  
   cleaned <-  cbind(subject, activity, x)
   
   file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
