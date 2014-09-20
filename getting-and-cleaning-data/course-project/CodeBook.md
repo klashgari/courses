@@ -63,12 +63,10 @@ In this step we merge the traing and test data sets and clean the column names.
 
 **Function:** MergeDatasets
 
-**Output of the MergeDatasets function is a list**.
----
-Subject: "[10,299 x 1]"
-Activity: "[10,299 x 1]"
-X: "[10,299 x 561]"
----
+**Output of the MergeDatasets function is a list.**
+Subject | Activity | X
+------- | -------- | 
+[10,299 x 1]|[10,299 x 1]|[10,299 x 561]
 
 *Method Signature*
 ```r
@@ -142,9 +140,10 @@ WriteTidyDataset <- function(cleaned, outputFilename, basepath=Global.BasePath)
 }
 ```
 
----
-Tidy data frame: [180 x 81]
----
+Tidy data frame |
+----------------
+[180 x 81]|
+
 
 
 
