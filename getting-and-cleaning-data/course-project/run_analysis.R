@@ -3,7 +3,7 @@ library(dplyr)
 library(plyr)
 
 Global.RemoteUrlForDataSet <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-Global.BasePath <- "~/edu/courses/getting-and-cleaning-data/course-project"
+Global.BasePath <- "." # ~/edu/courses/getting-and-cleaning-data/course-project"
 
 ###################################################################
 # Main function to collect and clean the dataset 
