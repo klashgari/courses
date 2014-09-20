@@ -1,8 +1,7 @@
 ---
 title: "README.md"
-author: "Kourosh Lashgari"
+UserID: "klashgari"
 date: "09/19/2014"
-output: html_document
 ---
 
 This repository contains the run_analysis.R  
