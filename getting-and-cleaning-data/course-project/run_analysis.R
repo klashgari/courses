@@ -172,7 +172,7 @@ WriteTidyDataset <- function(cleaned, outputFilename, basepath=Global.BasePath)
   tidy <- ddply(cleaned, .(subject, activity), numcolwise(mean) )
   
   file <-  file.path(basepath, outputFilename,  fsep = .Platform$file.sep)
-  write.table(tidy, file, sep="\t" ,row.names=FALSE )
+  write.table(tidy, file, sep="\t" ,row.name=FALSE )
   
   message("\n-----------------------------------\n printing tidy:")
   #head(tidy, n = 3)
