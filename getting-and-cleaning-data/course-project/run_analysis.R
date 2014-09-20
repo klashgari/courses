@@ -33,7 +33,7 @@ Main <- function(lazyLoad = TRUE)
   #each variable for each activity and each subject.
   WriteTidyDataset(cleaned, "tidy.txt")
   
-  Print("Done")
+  message("Done")
 }
 
 Usage <- function()
