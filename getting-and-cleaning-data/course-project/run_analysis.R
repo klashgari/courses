@@ -5,7 +5,44 @@ library(plyr)
 Global.RemoteUrlForDataSet <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 Global.BasePath <- "~/edu/courses/getting-and-cleaning-data/course-project"
 
-folder.create <- function(folderName, basepath=Global.BasePath)
+###################################################################
+# Main function to collect and clean the dataset 
+# CAll Usage() for help
+###################################################################
+Main <- function(lazyLoad = TRUE)
+{ 
+  setwd(Global.BasePath)
+  Download( fromUrl=Global.RemoteUrlForDataSet, 
+            toFolder=CreateFolder("dataset"), 
+            unzip=TRUE,
+            lazyLoad=lazyLoad)
+  
+  list <- MergeDatasets() # merge.training.and.test.datasets
+  
+  cleaned.x <- ExtractMeasurements(list$X)
+  
+  cleaned.activity <- ReplaceActivityNames(list$Activity)  
+  
+  # Appropriately labels the data set with descriptive variable names. 
+  cleaned <- WriteDatasetWithDescriptiveVariableNames(list$Subject, 
+                                                      cleaned.activity, 
+                                                      cleaned.x, 
+                                                      "cleaned.dataset.txt")
+  
+  # From the data set in step 4, creates a second, independent tidy data set with the average of 
+  #each variable for each activity and each subject.
+  WriteTidyDataset(cleaned, "tidy.txt")
+  
+}
+
+Usage <- function()
+{
+  message(" call Main(FALSE) to downlaod the data then clean it. ")
+  message(" call Main() or Main(TRUE) to clean a dataset previously downloaded.")
+}
+
+
+CreateFolder <- function(folderName, basepath=Global.BasePath)
 {
   setwd(basepath)
   if (!file.exists(folderName)) 
@@ -16,7 +53,7 @@ folder.create <- function(folderName, basepath=Global.BasePath)
   file.path(basepath, folderName,  fsep = .Platform$file.sep)
 }
 
-url.download <- function(fromUrl, toFolder, unzip=FALSE, lazyLoad=FALSE)
+Download <- function(fromUrl, toFolder, unzip=FALSE, lazyLoad=FALSE)
 {
   filename <- basename(URLdecode(fromUrl))   
   targetPath <- file.path(toFolder, filename,  fsep = .Platform$file.sep)
@@ -24,7 +61,8 @@ url.download <- function(fromUrl, toFolder, unzip=FALSE, lazyLoad=FALSE)
   
   if ( lazyLoad &&  file.exists(targetPath) )
   {
-    message(sprintf("The folder %s exists, will not download again.", targetPath))
+    message(sprintf("%s exists. Will not download again.", targetPath))
+    message(sprintf("'lazyLoad' switch is set to %s.", as.character(lazyLoad)))
     return(NA)
   }
 
@@ -33,26 +71,28 @@ url.download <- function(fromUrl, toFolder, unzip=FALSE, lazyLoad=FALSE)
   if( unzip )
   {
     unzip(targetPath, exdir=toFolder)
-    message(sprintf("Unzipped the file '%s' into folder: '%s'", targetPath, toFolder))
+    message(sprintf("Unzipped the file '%s' \ninto folder: '%s'", targetPath, toFolder))
   }
 }
 
-merge.training.and.test.datasets <- function(basepath=Global.BasePath)
+MergeDatasets <- function(basepath=Global.BasePath)
 {
-  
   "Merges the training and the test sets to create one data set."
-  setwd(basepath)
   
+  message("About to merges the training and the test sets to create one data set.")
+  
+  setwd(basepath)
   features <- tbl_df( read.table("dataset/UCI HAR Dataset/features.txt"))
   
   
   x <- rbind(read.table("dataset/UCI HAR Dataset/train/X_train.txt"),
              read.table("dataset/UCI HAR Dataset/test/X_test.txt") )
-  colnames(x) <- features[,2]
+  
+  colnames(x) <- CleanFeatureNames(features[,2])
   
   
   activity <- rbind(read.table("dataset/UCI HAR Dataset/train/y_train.txt"),
-             read.table("dataset/UCI HAR Dataset/test/y_test.txt"))
+                    read.table("dataset/UCI HAR Dataset/test/y_test.txt"))
   colnames(activity) <- "activity"
   
   subject <- rbind(read.table("dataset/UCI HAR Dataset/train/subject_train.txt"),
@@ -62,81 +102,79 @@ merge.training.and.test.datasets <- function(basepath=Global.BasePath)
   list( Subject=tbl_df(subject), Activity=tbl_df(activity), X=tbl_df(x))
 }
 
-extract.mean.sd <- function(X)
+CleanFeatureNames <- function( columnNames )
 {
-  df <- select( X, matches("-mean()|-std()"))
+  columnNames <- sapply( columnNames , function(name) name<- gsub("tBody", "TimeDomain-Body-", name) )
+  columnNames <- sapply( columnNames , function(name) name<- gsub("fBody", "FrequencyDomain-Body-", name) )
+  columnNames <- sapply( columnNames , function(name) name<- gsub("tGravity", "TimeDomain-Gravity-", name) )
+  columnNames <- sapply( columnNames , function(name) name<- gsub("fGravity", "FrequencyDomain-Gravity-", name) )
+  
+  columnNames <- sapply( columnNames , function(name) name<- gsub("mean\\(\\)|mean\\(\\)-", "mean-", name) )
+  columnNames <- sapply( columnNames , function(name) name<- gsub("meanFreq\\(\\)|meanFreq\\(\\)-", "meanFreq-", name) )
+  columnNames <- sapply( columnNames , function(name) name<- gsub("std\\(\\)|std\\(\\)-", "std-", name) )
+ 
+  columnNames
+}
+
+ExtractMeasurements <- function(X)
+{
+  "Extract only the measurements on the mean and standard deviation for each measurement"
+  message("Extracting only the measurements on the mean and standard deviation for each measurement")
+  
+  df <- select( X, matches("-mean|-std"))  
   df
 }
 
-use.descriptive.activitiy.names <-function(activity)
+ReplaceActivityNames <-function(activity)
 {
-  # activity lables:
-  #  1 WALKING
-  #  2 WALKING_UPSTAIRS
-  #  3 WALKING_DOWNSTAIRS
-  #  4 SITTING
-  #  5 STANDING
-  #  6 LAYING
+  " Replaces activitiy names with descriptive names "
+  " activity lables: "
+  "  1 WALKING "
+  "  2 WALKING_UPSTAIRS "
+  "  3 WALKING_DOWNSTAIRS "
+  "  4 SITTING "
+  "  5 STANDING "
+  "  6 LAYING "
+  
+  message("Setting descriptive activity names to name the activities in the data set")
+  
   l <- tbl_df(read.table("dataset/UCI HAR Dataset/activity_labels.txt"))  
   message( sprintf( "There are %d activity labels in the activity_lables.txt file", nrow(l)))
   for( i in 1:nrow(l))
   { 
-    print(as.character( l[i,2] ))
+    #print(as.character( l[i,2] ))
     activity[activity == i] = as.character( l[i,2] )
   }
-  print(activity)
+  #print(activity)
   activity
 }
 
-dataset.with.descriptive.variable.names <- function(subject, activity, x, filename, basepath=Global.BasePath)
+WriteDatasetWithDescriptiveVariableNames <- function(subject, activity, x, filename, basepath=Global.BasePath)
 {
+  "reates a second, independent tidy data set with the average of each variable for each activity and each subject."
   cleaned <-  cbind(subject, activity, x)
   
   file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
   write.table(cleaned, file, sep="\t")
+  
+ # head(cleaned$x)
+  
   cleaned 
 }
 
-create.tidy.dataset <- function(cleaned, filename, basepath=Global.BasePath)
+WriteTidyDataset <- function(cleaned, outputFilename, basepath=Global.BasePath)
 {
+  "Createing a second, independent tidy data set with the average of each variable for each activity and each subject."
   tidy <- ddply(cleaned, .(subject, activity), numcolwise(mean) )
   
-  file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
+  file <-  file.path(basepath, outputFilename,  fsep = .Platform$file.sep)
   write.table(tidy, file, sep="\t" ,row.names=FALSE )
-  tidy
-}
-
-main <- function(downloadDataset = TRUE)
-{ 
-  setwd(Global.BasePath)
-  url.download( fromUrl=Global.RemoteUrlForDataSet, 
-                toFolder=folder.create("dataset"), 
-                unzip=TRUE,
-                lazyLoad=downloadDataset)
   
-
-  message("About to merges the training and the test sets to create one data set.")
-  list <- merge.training.and.test.datasets()
-  
-  message("Extracting only the measurements on the mean and standard deviation for each measurement")
-  cleaned.x <- extract.mean.sd(list$X)
-  message("printing cleaned.x: ")
-  head(cleaned.x)
-  
-  message("Setting descriptive activity names to name the activities in the data set")
-  cleaned.activity <- use.descriptive.activitiy.names(list$Activity)  
-  message("printing activity: ")
-  head(cleaned.activity)
-  
-  # Appropriately labels the data set with descriptive variable names. 
-  cleaned <- dataset.with.descriptive.variable.names(list$Subject, cleaned.activity, cleaned.x, "cleaned.dataset.txt")
-  message("\n-----------------------------------\n printing cleaned: ")
-  head(cleaned)
-  
-  # From the data set in step 4, creates a second, independent tidy data set with the average of 
-  #each variable for each activity and each subject.
-  tidy <- create.tidy.dataset(cleaned, "tidy.txt")
   message("\n-----------------------------------\n printing tidy:")
-  head(tidy)
-  tail(tidy)
+  #head(tidy, n = 3)
+  #tail(tidy)
+  print( tbl_df(tidy))
+ # tidy
 }
+
+
