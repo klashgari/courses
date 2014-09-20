@@ -10,12 +10,16 @@ The purpose of this script is to collect, work with, and clean a data set.
 
 run_analysis.R cleans the  Human Activity Recognition data set. 
 
-A full description is available at the site where the data was obtained here
+A full description is available at the site where the data was obtained here:
 <http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones> 
 
 Call the Usage() for help.
 ```{r}
-Usage()
+> 
+> Usage()
+ call Main(FALSE) to downlaod the data then clean it. 
+ call Main() or Main(TRUE) to clean a dataset previously downloaded.
+> 
 ```
 
 
