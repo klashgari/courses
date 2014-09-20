@@ -64,9 +64,9 @@ In this step we merge the traing and test data sets and clean the column names.
 **Function:** MergeDatasets
 
 **Output of the MergeDatasets function is a list.**
-Subject | Activity | X |
-------- | -------- | -------- |
-[10,299 x 1]|[10,299 x 1]|[10,299 x 561]|
+Subject     | Activity   |     X    |
+----------- | ---------- | -------- |
+"[10,299 x 1]"|"[10,299 x 1]"|"[10,299 x 561]"|
 
 *Method Signature*
 ```r
