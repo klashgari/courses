@@ -14,7 +14,7 @@ run_analysis.R cleans the  Human Activity Recognition data set.
 A full description is available at the site where the data was obtained here
 <http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones> 
 
-For run instructions call the Usage() function.
+Call the Usage() for help.
 ```{r}
 Usage()
 ```
