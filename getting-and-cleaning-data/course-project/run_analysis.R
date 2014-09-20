@@ -151,7 +151,7 @@ ReplaceActivityNames <-function(activity)
 
 WriteDatasetWithDescriptiveVariableNames <- function(subject, activity, x, filename, basepath=Global.BasePath)
 {
-  "reates a second, independent tidy data set with the average of each variable for each activity and each subject."
+  "Creates a second, independent tidy data set with the average of each variable for each activity and each subject."
   cleaned <-  cbind(subject, activity, x)
   
   file <-  file.path(basepath, filename,  fsep = .Platform$file.sep)
