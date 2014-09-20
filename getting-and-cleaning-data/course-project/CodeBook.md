@@ -49,13 +49,15 @@ The sensor signals (accelerometer and gyroscope) were pre-processed by applying 
 The tidy data set extracts only the the mean and standard deviation for each measurement.
 
 
+
+
 # Data Transformation and Clean Up
 
-## Data Transformation Overview
+### Data Transformation Overview
 The data set is processed by *run_analysis.R* script.
   
 
-## Data Transformation Steps
+### Data Transformation Steps
 
 #### Merges the training and the test sets to create one data set.
 
@@ -147,7 +149,7 @@ Tidy data frame |
 ----------------
 [180 x 81]|
 
-
+The data set is written to the file 'tidy.txt'
 
 
 
