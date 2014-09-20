@@ -17,17 +17,16 @@ Main <- function(lazyLoad = TRUE)
             unzip=TRUE,
             lazyLoad=lazyLoad)
   
-  list <- MergeDatasets() # merge.training.and.test.datasets
+  list <- MergeDatasets()
   
   cleaned.x <- ExtractMeasurements(list$X)
   
   cleaned.activity <- ReplaceActivityNames(list$Activity)  
   
-  # Appropriately labels the data set with descriptive variable names. 
-  cleaned <- WriteDatasetWithDescriptiveVariableNames(list$Subject, 
-                                                      cleaned.activity, 
-                                                      cleaned.x, 
-                                                      "cleaned.dataset.txt")
+  cleaned <- PacakgeThenWriteCleanedData(list$Subject, 
+                                         cleaned.activity, 
+                                         cleaned.x, 
+                                         "cleaned.dataset.txt")
   
   # From the data set in step 4, creates a second, independent tidy data set with the average of 
   #each variable for each activity and each subject.
@@ -129,6 +128,8 @@ ExtractMeasurements <- function(X)
 ReplaceActivityNames <-function(activity)
 {
   " Replaces activitiy names with descriptive names "
+  " Appropriately labels the data set with descriptive variable names. "
+  
   " activity lables: "
   "  1 WALKING "
   "  2 WALKING_UPSTAIRS "
@@ -150,9 +151,10 @@ ReplaceActivityNames <-function(activity)
   activity
 }
 
-WriteDatasetWithDescriptiveVariableNames <- function(subject, activity, x, filename, basepath=Global.BasePath)
+PacakgeThenWriteCleanedData <- function(subject, activity, x, filename, basepath=Global.BasePath)
 {
-  "Appropriately labels the data set with descriptive variable names. "
+  "Places the subject, activity and X into a clean vector "
+  "Next it write the resulting vector to a file and returns the result"
   
   cleaned <-  cbind(subject, activity, x)
   

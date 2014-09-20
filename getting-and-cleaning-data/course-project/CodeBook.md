@@ -8,7 +8,7 @@ date: "09/19/2014"
 #Code Book
 
 
-#Dataset description
+#Dataset Description
 
 *Data description* [Human Activity Recognition Using Smartphones](http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones )
 *Data source:* [UCI Machine Learning repository](https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip )
@@ -27,7 +27,7 @@ The sensor signals (accelerometer and gyroscope) were pre-processed by applying 
 - An identifier of the subject who carried out the experiment.
 
 
-##The dataset includes the following files:
+###The dataset includes the following files:
 
 - 'features_info.txt': Shows information about the variables used on the feature vector.
 
@@ -46,18 +46,18 @@ The sensor signals (accelerometer and gyroscope) were pre-processed by applying 
 
 
 ### Signals Of interest 
-The tidy data set extracts only the measurements on the mean and standard deviation for each measurement.
+The tidy data set extracts only the the mean and standard deviation for each measurement.
 
 
-# Data transformation and Clean up
+# Data Transformation and Clean Up
 
-## Data Transformation overview
+## Data Transformation Overview
 The data set is processed by *run_analysis.R* script.
   
 
 ## Data Transformaiton Steps
 
-### Merges the training and the test sets to create one data set.
+#### Merges the training and the test sets to create one data set.
 
 In this step we merge the traing and test data sets and clean the column names.
 
@@ -65,9 +65,9 @@ In this step we merge the traing and test data sets and clean the column names.
 
 **Output of the MergeDatasets function is a list**.
 ---
-Subject:[10,299 x 1]
-Activity: [10,299 x 1]
-X: [10,299 x 561]
+Subject: "[10,299 x 1]"
+Activity: "[10,299 x 1]"
+X: "[10,299 x 561]"
 ---
 
 *Method Signature*
@@ -78,7 +78,7 @@ MergeDatasets <- function(basepath=Global.BasePath)
 }
 ```
 
-### Extracts only the measurements on the mean and standard deviation for each measurement. 
+#### Extracts only the measurements on the mean and standard deviation for each measurement. 
 
 Here we remove columns that are not related to the mean or standard deviation.
 
@@ -93,7 +93,7 @@ ExtractMeasurements <- function(X)
 }
 ```
 
-### Uses descriptive activity names to name the activities in the data set
+#### Uses descriptive activity names to name the activities in the data set
 Reads activity_labels.txt and applies descriptive activity names in place of the integer values in the data set
 
 *Method Signature* 
@@ -113,7 +113,7 @@ ReplaceActivityNames <-function(activity)
   ...
 ```
 
-### Pacakges the appropriately labels the data set with descriptive variable names. 
+#### Pacakges the appropriately labels the data set with descriptive variable names. 
 
 
 *Method Signature* 
@@ -127,7 +127,9 @@ PacakgeThenWriteCleanedData <- function(subject, activity, x, filename, basepath
 }
 ```
 
-### Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+#### Independent tidy data set
+
+Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 
 *Method Signature* 
@@ -147,7 +149,11 @@ Tidy data frame: [180 x 81]
 
 
 
+
+
+
+
 #References 
 
-##Publications
+####Publications
 [1] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
